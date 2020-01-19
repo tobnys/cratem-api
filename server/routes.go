@@ -14,9 +14,9 @@ func Router() *gin.Engine {
 	{
 		v1.GET("/", controllers.Index)
 		
-		sms := router.Group("sms")
+		auth := router.Group("auth")
 		{
-			sms.POST("/send/")
+			auth.POST("/send/")
 		}
 	}
 
