@@ -1,22 +1,35 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
+	"fmt"
 	"net/http"
-)
 
-var (
-	// TODO: randomize it
-	OauthStateString = "pseudo-random"
+	"github.com/gin-gonic/gin"
+	"github.com/markbates/goth/gothic"
 )
 
 func Login(c *gin.Context) {
-	urlCode := GoogleOauthConfig.AuthCodeURL(oauthStateString)
-	c.Redirect(urlCode, "http://google.com")
-	return
+	q := c.Request.URL.Query()
+	q.Add("provider", "google")
+	c.Request.URL.RawQuery = q.Encode()
+	fmt.Println("ENCODING", q.Encode())
+	gothic.BeginAuthHandler(c.Writer, c.Request)
+}
+
+func Logout(c *gin.Context) {
+	gothic.Logout(c.Writer, c.Request)
 }
 
 func Callback(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "User founded!"})
+	q := c.Request.URL.Query()
+	q.Add("provider", "google")
+	c.Request.URL.RawQuery = q.Encode()
+	user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
+	if err != nil {
+		fmt.Println("ERROR", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": user})
 	return
 }

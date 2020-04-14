@@ -8,9 +8,10 @@ require (
 	github.com/githubnemo/CompileDaemon v1.0.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/howeyc/fsnotify v0.9.0 // indirect
-	github.com/joho/godotenv v1.3.0 // indirect
+	github.com/joho/godotenv v1.3.0
 	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
+	github.com/markbates/goth v1.64.0
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/silenceper/gowatch v0.0.0-20200226025740-71916d322263 // indirect

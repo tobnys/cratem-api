@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/tobnys/cratem-api/controllers"
 	"github.com/gin-gonic/gin"
+	"github.com/tobnys/cratem-api/controllers"
 )
 
 func Router() *gin.Engine {
@@ -13,11 +13,14 @@ func Router() *gin.Engine {
 	v1 := router.Group("v1")
 	{
 		v1.GET("/", controllers.Index)
-		
-		auth := router.Group("auth")
+		auth := v1.Group("auth")
 		{
-			auth.GET("/login", controllers.Login)
-			auth.GET("/callback", controllers.Callback)
+			google := auth.Group("google")
+			{
+				google.GET("/login", controllers.Login)
+				google.GET("/logout", controllers.Logout)
+				google.GET("/callback", controllers.Callback)
+			}
 		}
 	}
 
