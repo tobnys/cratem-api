@@ -16,7 +16,8 @@ func Router() *gin.Engine {
 		
 		auth := router.Group("auth")
 		{
-			auth.POST("/send/")
+			auth.GET("/login", controllers.Login)
+			auth.GET("/callback", controllers.Callback)
 		}
 	}
 
