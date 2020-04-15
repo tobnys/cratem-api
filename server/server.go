@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/joho/godotenv"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/google"
@@ -26,5 +27,6 @@ func init() {
 
 func Initialize() {
 	r := Router()
+	r.Use(cors.Default())
 	r.Run("localhost:8080")
 }

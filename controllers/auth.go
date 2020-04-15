@@ -14,6 +14,7 @@ func Login(c *gin.Context) {
 	c.Request.URL.RawQuery = q.Encode()
 	fmt.Println("ENCODING", q.Encode())
 	gothic.BeginAuthHandler(c.Writer, c.Request)
+	return
 }
 
 func Logout(c *gin.Context) {
