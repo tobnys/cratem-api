@@ -12,8 +12,14 @@ func Login(c *gin.Context) {
 	q := c.Request.URL.Query()
 	q.Add("provider", "google")
 	c.Request.URL.RawQuery = q.Encode()
-	fmt.Println("ENCODING", q.Encode())
-	gothic.BeginAuthHandler(c.Writer, c.Request)
+	//gothic.BeginAuthHandler(c.Writer, c.Request)
+
+	url, err := gothic.GetAuthURL(c.Writer, c.Request)
+	if err != nil {
+		fmt.Println("ERR", err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"authUrl": url})
 	return
 }
 
@@ -25,12 +31,14 @@ func Callback(c *gin.Context) {
 	q := c.Request.URL.Query()
 	q.Add("provider", "google")
 	c.Request.URL.RawQuery = q.Encode()
+
 	user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
 	if err != nil {
-		fmt.Println("ERROR", err)
+		fmt.Println("ERROR CALLBACK", err)
 		return
 	}
+	fmt.Println("USER", user)
 
-	c.JSON(http.StatusOK, gin.H{"message": user})
+	c.Redirect(http.StatusFound, "http://localhost:3000")
 	return
 }
