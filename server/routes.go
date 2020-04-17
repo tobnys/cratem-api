@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/tobnys/cratem-api/controllers"
+	"github.com/tobnys/cratem-api/helpers"
 )
 
 func Router() *gin.Engine {
@@ -22,6 +23,10 @@ func Router() *gin.Engine {
 				google.GET("/callback", controllers.Callback)
 			}
 		}
+
+		v1.GET("/cookie", func(c *gin.Context) {
+			helpers.GenerateStateOauthCookie(c)
+		})
 	}
 
 	return router
