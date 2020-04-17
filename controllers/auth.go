@@ -6,20 +6,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth/gothic"
+	"github.com/tobnys/cratem-api/cfg"
 )
 
 func Login(c *gin.Context) {
-	q := c.Request.URL.Query()
-	q.Add("provider", "google")
-	c.Request.URL.RawQuery = q.Encode()
-	//gothic.BeginAuthHandler(c.Writer, c.Request)
-
-	url, err := gothic.GetAuthURL(c.Writer, c.Request)
-	if err != nil {
-		fmt.Println("ERR", err)
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"authUrl": url})
+	url := cfg.GoogleOauthConfig.AuthCodeURL(cfg.OauthStateString)
+	c.Redirect(http.StatusTemporaryRedirect, url)
 	return
 }
 
