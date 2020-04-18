@@ -3,12 +3,15 @@ module github.com/tobnys/cratem-api
 go 1.13
 
 require (
+	github.com/appleboy/gin-jwt/v2 v2.6.3 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/gin-contrib/cors v1.3.1
+	github.com/gin-contrib/sessions v0.0.3 // indirect
 	github.com/gin-gonic/gin v1.5.0
 	github.com/githubnemo/CompileDaemon v1.0.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
-	github.com/gorilla/sessions v1.1.1
+	github.com/gorilla/sessions v1.1.3
 	github.com/howeyc/fsnotify v0.9.0 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/json-iterator/go v1.1.9 // indirect

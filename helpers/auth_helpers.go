@@ -1,14 +1,24 @@
 package helpers
 
 import (
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	"os"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/tobnys/cratem-api/cfg"
 	"golang.org/x/oauth2"
 )
+
+type GoogleUserReturn struct {
+	ID            string `json:"id"`
+	Email         string `json:"email"`
+	VerifiedEmail bool   `json:"verified_email"`
+	Picture       string `json:"picture"`
+}
 
 func GetUserToken(state string, code string) (*oauth2.Token, error) {
 	if state != cfg.OauthStateString {
@@ -21,32 +31,48 @@ func GetUserToken(state string, code string) (*oauth2.Token, error) {
 	return token, nil
 }
 
-func GetUserInfo(state string, code string) ([]byte, error) {
+func GetUserInfo(state string, code string) (GoogleUserReturn, error) {
+	var googleUserReturn GoogleUserReturn
 	if state != cfg.OauthStateString {
-		return nil, fmt.Errorf("invalid oauth state")
+		return googleUserReturn, fmt.Errorf("invalid oauth state")
 	}
 	token, err := cfg.GoogleOauthConfig.Exchange(oauth2.NoContext, code)
 	if err != nil {
-		return nil, fmt.Errorf("code exchange failed: %s", err.Error())
+		return googleUserReturn, fmt.Errorf("code exchange failed: %w", err)
 	}
 	response, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
 	if err != nil {
-		return nil, fmt.Errorf("failed getting user info: %s", err.Error())
+		return googleUserReturn, fmt.Errorf("failed getting user info: %w", err)
 	}
 	defer response.Body.Close()
-	contents, err := ioutil.ReadAll(response.Body)
+
+	err = json.NewDecoder(response.Body).Decode(&googleUserReturn)
 	if err != nil {
-		return nil, fmt.Errorf("failed reading response body: %s", err.Error())
+		return googleUserReturn, fmt.Errorf("failed decoding: %w", err)
 	}
-	return contents, nil
+
+	return googleUserReturn, nil
 }
 
-func GenerateStateOauthCookie(c *gin.Context) {
-	cookie, err := c.Cookie("gin_cookie")
-
+func GenerateStateOauthCookie(c *gin.Context, user GoogleUserReturn) {
+	cookie, err := c.Cookie("Bearer")
 	if err != nil {
+		token := jwt.New(jwt.SigningMethodHS256)
+
+		claims := token.Claims.(jwt.MapClaims)
+
+		claims["authorize"] = true
+		claims["ID"] = user.ID
+		claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
+
+		tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+		if err != nil {
+			fmt.Errorf("failed JWT: %w", err)
+		}
+
+		// New
 		cookie = "NotSet"
-		c.SetCookie("gin_cookie", "test", 3600, "/", "localhost", false, true)
+		c.SetCookie("Bearer", tokenString, 3600, "/", cfg.HOST, false, true)
 	}
 
 	fmt.Printf("Cookie value: %s \n", cookie)

@@ -10,8 +10,6 @@ import (
 )
 
 func Login(c *gin.Context) {
-	//helpers.GenerateStateOauthCookie(c)
-	//fmt.Println("THIS COOKIE", oauthState)
 	url := cfg.GoogleOauthConfig.AuthCodeURL("pseudo-random")
 	c.JSON(200, gin.H{"authUrl": url})
 	return
@@ -32,18 +30,24 @@ func Callback(c *gin.Context) {
 
 	fmt.Println("STATE PARAM", c.Request.FormValue("state"))
 
-	token, err := helpers.GetUserToken(c.Request.FormValue("state"), c.Request.FormValue("code"))
+	user, err := helpers.GetUserInfo(c.Request.FormValue("state"), c.Request.FormValue("code"))
 	if err != nil {
 		fmt.Println(err.Error())
 		http.Redirect(c.Writer, c.Request, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
-	fmt.Println("TOKENNNNNNNNNNNNNNNNNNN", token)
+	fmt.Printf("%+v \n", user)
+
+	fmt.Println("TEST", user.ID)
 
 	// Create user in DB
+
+	// Create cookie for user
+	helpers.GenerateStateOauthCookie(c, user)
+
 	// Redirect user with token here
-	http.Redirect(c.Writer, c.Request, "http://localhost:3000", http.StatusPermanentRedirect)
-	//fmt.Fprintf(c.Writer, "Content: %s\n", content)
+	http.Redirect(c.Writer, c.Request, "http://localhost:3000/main", http.StatusPermanentRedirect)
+	//fmt.Fprintf(c.Writer, "Content: %s\n", user)
 	return
 }
