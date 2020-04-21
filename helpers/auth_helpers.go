@@ -20,6 +20,30 @@ type GoogleUserReturn struct {
 	Picture       string `json:"picture"`
 }
 
+func ValidateToken(tokenString string) bool {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	if err != nil {
+		fmt.Println("ERROR PARSING JWT", err)
+	}
+
+	fmt.Println("TOKEN", token)
+
+	/*
+		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			fmt.Println(claims["authorize"], claims["ID"], claims["exp"])
+		} else {
+			fmt.Println(err)
+		}
+	*/
+
+	return token.Valid
+}
+
 func GetUserToken(state string, code string) (*oauth2.Token, error) {
 	if state != cfg.OauthStateString {
 		return nil, fmt.Errorf("invalid oauth state")

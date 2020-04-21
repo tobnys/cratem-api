@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 
@@ -8,6 +9,20 @@ import (
 	"github.com/tobnys/cratem-api/cfg"
 	"github.com/tobnys/cratem-api/helpers"
 )
+
+func AuthValidate(c *gin.Context) {
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(c.Request.Body)
+	bodyString := buf.String()
+
+	validToken := helpers.ValidateToken(bodyString)
+	if validToken {
+		c.JSON(200, gin.H{})
+		return
+	} else {
+		c.JSON(404, gin.H{})
+	}
+}
 
 func Login(c *gin.Context) {
 	url := cfg.GoogleOauthConfig.AuthCodeURL("pseudo-random")
@@ -41,13 +56,13 @@ func Callback(c *gin.Context) {
 
 	fmt.Println("TEST", user.ID)
 
-	// Create user in DB
+	// Create user in DB IF NOT EXIST (CHECK user.ID)
+	// Connect OAUTHID (user.ID) to new user table
 
 	// Create cookie for user
 	helpers.GenerateStateOauthCookie(c, user)
 
 	// Redirect user with token here
 	http.Redirect(c.Writer, c.Request, "http://localhost:3000/main", http.StatusPermanentRedirect)
-	//fmt.Fprintf(c.Writer, "Content: %s\n", user)
 	return
 }

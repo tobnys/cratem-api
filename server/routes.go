@@ -15,6 +15,7 @@ func Router() *gin.Engine {
 		v1.GET("/", controllers.Index)
 		auth := v1.Group("auth")
 		{
+			auth.POST("/validate", controllers.AuthValidate)
 			google := auth.Group("google")
 			{
 				google.GET("/login", controllers.Login)
